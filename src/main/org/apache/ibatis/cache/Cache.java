@@ -42,11 +42,13 @@ import java.util.concurrent.locks.ReadWriteLock;
 public interface Cache {
 
   /**
+   * 缓存对象的id
    * @return The identifier of this cache
    */
   String getId();
 
   /**
+   * 向缓存中添加数据，一般情况下key是CacheKey， value是查询结果
    * @param key
    *          Can be any object but usually it is a {@link CacheKey}
    * @param value
@@ -55,6 +57,7 @@ public interface Cache {
   void putObject(Object key, Object value);
 
   /**
+   * 根据指定key ，在缓存中查找对应的结果对象
    * @param key
    *          The key
    *
@@ -67,7 +70,7 @@ public interface Cache {
    * lets any blocking cache to release the lock that may have previously put on the key. A blocking cache puts a lock
    * when a value is null and releases it when the value is back again. This way other threads will wait for the value
    * to be available instead of hitting the database.
-   *
+   * 删除key对应的缓存数据
    * @param key
    *          The key
    *
@@ -81,6 +84,7 @@ public interface Cache {
   void clear();
 
   /**
+   * 缓存个数
    * Optional. This method is not called by the core.
    *
    * @return The number of elements stored in the cache (not its capacity).
@@ -91,7 +95,7 @@ public interface Cache {
    * Optional. As of 3.2.6 this method is no longer called by the core.
    * <p>
    * Any locking needed by the cache must be provided internally by the cache provider.
-   *
+   * 获取读写锁
    * @return A ReadWriteLock
    */
   default ReadWriteLock getReadWriteLock() {

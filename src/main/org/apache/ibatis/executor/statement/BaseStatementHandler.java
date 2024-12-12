@@ -66,7 +66,8 @@ public abstract class BaseStatementHandler implements StatementHandler {
     }
 
     this.boundSql = boundSql;
-
+    // 创建了四大对象的其它两大对象 >>
+    // 创建这两大对象的时候分别做了什么？
     this.parameterHandler = configuration.newParameterHandler(mappedStatement, parameterObject, boundSql);
     this.resultSetHandler = configuration.newResultSetHandler(executor, mappedStatement, rowBounds, parameterHandler,
         resultHandler, boundSql);

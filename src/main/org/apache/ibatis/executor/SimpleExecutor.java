@@ -59,11 +59,16 @@ public class SimpleExecutor extends BaseExecutor {
     Statement stmt = null;
     try {
       Configuration configuration = ms.getConfiguration();
+      // 关键处理对象 >> StatementHandler 同时也会完成 parameterHandler 和 resultSetHandler 的实例化
+      // 默认创建 parameterHandler
       StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler,
           boundSql);
+      // 获取一个 Statement对象
       stmt = prepareStatement(handler, ms.getStatementLog());
+      // 获取一个 Statement对象
       return handler.query(stmt, resultHandler);
     } finally {
+      // 用完就关闭
       closeStatement(stmt);
     }
   }
@@ -86,8 +91,11 @@ public class SimpleExecutor extends BaseExecutor {
 
   private Statement prepareStatement(StatementHandler handler, Log statementLog) throws SQLException {
     Statement stmt;
+    // 放开了日志，就会创建 Connection 的代理对象
     Connection connection = getConnection(statementLog);
+    // 获取 Statement 对象 -> PrepareStatement 对象 Statement 如果放开日志，就会创建 Statement对应的代理对象
     stmt = handler.prepare(connection, transaction.getTimeout());
+    // 为 Statement 设置参数 如果是PrepareStatement 处理则会对对应的占位符赋值
     handler.parameterize(stmt);
     return stmt;
   }

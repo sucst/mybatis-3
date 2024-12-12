@@ -15,31 +15,11 @@
  */
 package org.apache.ibatis.builder.xml;
 
-import java.io.InputStream;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import org.apache.ibatis.builder.BaseBuilder;
-import org.apache.ibatis.builder.BuilderException;
-import org.apache.ibatis.builder.CacheRefResolver;
-import org.apache.ibatis.builder.IncompleteElementException;
-import org.apache.ibatis.builder.MapperBuilderAssistant;
-import org.apache.ibatis.builder.ResultMapResolver;
+import org.apache.ibatis.builder.*;
 import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.mapping.Discriminator;
-import org.apache.ibatis.mapping.ParameterMapping;
-import org.apache.ibatis.mapping.ParameterMode;
-import org.apache.ibatis.mapping.ResultFlag;
-import org.apache.ibatis.mapping.ResultMap;
-import org.apache.ibatis.mapping.ResultMapping;
+import org.apache.ibatis.mapping.*;
 import org.apache.ibatis.parsing.XNode;
 import org.apache.ibatis.parsing.XPathParser;
 import org.apache.ibatis.reflection.MetaClass;
@@ -47,9 +27,14 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 
+import java.io.InputStream;
+import java.io.Reader;
+import java.util.*;
+
 /**
  * @author Clinton Begin
  * @author Kazuki Shimizu
+ * @desciption 解析Mapper映射器
  */
 public class XMLMapperBuilder extends BaseBuilder {
 
@@ -94,9 +79,12 @@ public class XMLMapperBuilder extends BaseBuilder {
   }
 
   public void parse() {
+    // 语句的注册和接口注册
     if (!configuration.isResourceLoaded(resource)) {
+      // 1. 具体CRUD标签的解析
       configurationElement(parser.evalNode("/mapper"));
       configuration.addLoadedResource(resource);
+      // 2. 把 namespacee（接口类型）和工厂类型绑定起来，放到一个map
       bindMapperForNamespace();
     }
     configuration.parsePendingResultMaps(false);
@@ -115,11 +103,17 @@ public class XMLMapperBuilder extends BaseBuilder {
         throw new BuilderException("Mapper's namespace cannot be empty");
       }
       builderAssistant.setCurrentNamespace(namespace);
+      // 添加缓存对象
       cacheRefElement(context.evalNode("cache-ref"));
+      // 解析 cache 属性，添加缓存对象
       cacheElement(context.evalNode("cache"));
+      // 创建 parameterMapping 对象
       parameterMapElement(context.evalNodes("/mapper/parameterMap"));
+      //  创建 List<ResultMapping>
       resultMapElements(context.evalNodes("/mapper/resultMap"));
+      // 解析可以复用的SQL
       sqlElement(context.evalNodes("/mapper/sql"));
+      // 解析增删改查标签，得到 MappedStatement >>
       buildStatementFromContext(context.evalNodes("select|insert|update|delete"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing Mapper XML. The XML location is '" + resource + "'. Cause: " + e, e);
@@ -160,6 +154,7 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   private void cacheElement(XNode context) {
     if (context != null) {
+      // cache 标签不空才解析
       String type = context.getStringAttribute("type", "PERPETUAL");
       Class<? extends Cache> typeClass = typeAliasRegistry.resolveAlias(type);
       String eviction = context.getStringAttribute("eviction", "LRU");
@@ -385,6 +380,7 @@ public class XMLMapperBuilder extends BaseBuilder {
     if (namespace != null) {
       Class<?> boundType = null;
       try {
+        // 根据命名空间加载对应接口类型
         boundType = Resources.classForName(namespace);
       } catch (ClassNotFoundException e) {
         // ignore, bound type is not required
@@ -394,6 +390,7 @@ public class XMLMapperBuilder extends BaseBuilder {
         // to prevent loading again this resource from the mapper interface
         // look at MapperAnnotationBuilder#loadXmlResource
         configuration.addLoadedResource("namespace:" + namespace);
+        // 添加到MapperRegistry, 本质是一个map，里面也有Configuration
         configuration.addMapper(boundType);
       }
     }

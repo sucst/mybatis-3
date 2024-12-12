@@ -77,7 +77,7 @@ public class CacheKey implements Cloneable, Serializable {
     count++;
     checksum += baseHashCode;
     baseHashCode *= count;
-
+    // 更新了CacheKey的hashCode，用乘法哈希生成的（基数baseHashCode=17，乘法因子multiplier=37）。
     hashcode = multiplier * hashcode + baseHashCode;
 
     updateList.add(object);

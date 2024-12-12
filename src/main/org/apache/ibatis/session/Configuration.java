@@ -1,33 +1,9 @@
-/*
- *    Copyright 2009-2024 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       https://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
-package org.apache.ibatis.session;
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by FernFlower decompiler)
+//
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.BiFunction;
+package org.apache.ibatis.session;
 
 import org.apache.ibatis.binding.MapperRegistry;
 import org.apache.ibatis.builder.CacheRefResolver;
@@ -44,11 +20,7 @@ import org.apache.ibatis.cache.impl.PerpetualCache;
 import org.apache.ibatis.datasource.jndi.JndiDataSourceFactory;
 import org.apache.ibatis.datasource.pooled.PooledDataSourceFactory;
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
-import org.apache.ibatis.executor.BatchExecutor;
-import org.apache.ibatis.executor.CachingExecutor;
-import org.apache.ibatis.executor.Executor;
-import org.apache.ibatis.executor.ReuseExecutor;
-import org.apache.ibatis.executor.SimpleExecutor;
+import org.apache.ibatis.executor.*;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
 import org.apache.ibatis.executor.loader.ProxyFactory;
 import org.apache.ibatis.executor.loader.cglib.CglibProxyFactory;
@@ -68,13 +40,7 @@ import org.apache.ibatis.logging.log4j2.Log4j2Impl;
 import org.apache.ibatis.logging.nologging.NoLoggingImpl;
 import org.apache.ibatis.logging.slf4j.Slf4jImpl;
 import org.apache.ibatis.logging.stdout.StdOutImpl;
-import org.apache.ibatis.mapping.BoundSql;
-import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.mapping.ParameterMap;
-import org.apache.ibatis.mapping.ResultMap;
-import org.apache.ibatis.mapping.ResultSetType;
-import org.apache.ibatis.mapping.VendorDatabaseIdProvider;
+import org.apache.ibatis.mapping.*;
 import org.apache.ibatis.parsing.XNode;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.plugin.InterceptorChain;
@@ -97,9 +63,11 @@ import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
-/**
- * @author Clinton Begin
- */
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BiFunction;
+
 public class Configuration {
 
   protected Environment environment;
@@ -183,10 +151,10 @@ public class Configuration {
    */
   protected final Map<String, String> cacheRefMap = new HashMap<>();
 
-  public Configuration(Environment environment) {
-    this();
-    this.environment = environment;
-  }
+    public Configuration(Environment environment) {
+        this();
+        this.environment = environment;
+    }
 
   public Configuration() {
     typeAliasRegistry.registerAlias("JDBC", JdbcTransactionFactory.class);
@@ -222,76 +190,61 @@ public class Configuration {
     languageRegistry.register(RawLanguageDriver.class);
   }
 
-  public String getLogPrefix() {
-    return logPrefix;
-  }
-
-  public void setLogPrefix(String logPrefix) {
-    this.logPrefix = logPrefix;
-  }
-
-  public Class<? extends Log> getLogImpl() {
-    return logImpl;
-  }
-
-  public void setLogImpl(Class<? extends Log> logImpl) {
-    if (logImpl != null) {
-      this.logImpl = logImpl;
-      LogFactory.useCustomLogging(this.logImpl);
+    public String getLogPrefix() {
+        return this.logPrefix;
     }
-  }
 
-  public Class<? extends VFS> getVfsImpl() {
-    return this.vfsImpl;
-  }
-
-  public void setVfsImpl(Class<? extends VFS> vfsImpl) {
-    if (vfsImpl != null) {
-      this.vfsImpl = vfsImpl;
-      VFS.addImplClass(this.vfsImpl);
+    public void setLogPrefix(String logPrefix) {
+        this.logPrefix = logPrefix;
     }
-  }
 
-  /**
-   * Gets an applying type when omit a type on sql provider annotation(e.g.
-   * {@link org.apache.ibatis.annotations.SelectProvider}).
-   *
-   * @return the default type for sql provider annotation
-   *
-   * @since 3.5.6
-   */
-  public Class<?> getDefaultSqlProviderType() {
-    return defaultSqlProviderType;
-  }
+    public Class<? extends Log> getLogImpl() {
+        return this.logImpl;
+    }
 
-  /**
-   * Sets an applying type when omit a type on sql provider annotation(e.g.
-   * {@link org.apache.ibatis.annotations.SelectProvider}).
-   *
-   * @param defaultSqlProviderType
-   *          the default type for sql provider annotation
-   *
-   * @since 3.5.6
-   */
-  public void setDefaultSqlProviderType(Class<?> defaultSqlProviderType) {
-    this.defaultSqlProviderType = defaultSqlProviderType;
-  }
+    public void setLogImpl(Class<? extends Log> logImpl) {
+        if (logImpl != null) {
+            this.logImpl = logImpl;
+            LogFactory.useCustomLogging(this.logImpl);
+        }
 
-  public boolean isCallSettersOnNulls() {
-    return callSettersOnNulls;
-  }
+    }
 
-  public void setCallSettersOnNulls(boolean callSettersOnNulls) {
-    this.callSettersOnNulls = callSettersOnNulls;
-  }
+    public Class<? extends VFS> getVfsImpl() {
+        return this.vfsImpl;
+    }
 
-  public boolean isUseActualParamName() {
-    return useActualParamName;
-  }
+    public void setVfsImpl(Class<? extends VFS> vfsImpl) {
+        if (vfsImpl != null) {
+            this.vfsImpl = vfsImpl;
+            VFS.addImplClass(this.vfsImpl);
+        }
 
-  public void setUseActualParamName(boolean useActualParamName) {
-    this.useActualParamName = useActualParamName;
-  }
+    }
+
+    public Class<?> getDefaultSqlProviderType() {
+        return this.defaultSqlProviderType;
+    }
+
+    public void setDefaultSqlProviderType(Class<?> defaultSqlProviderType) {
+        this.defaultSqlProviderType = defaultSqlProviderType;
+    }
+
+    public boolean isCallSettersOnNulls() {
+        return this.callSettersOnNulls;
+    }
+
+    public void setCallSettersOnNulls(boolean callSettersOnNulls) {
+        this.callSettersOnNulls = callSettersOnNulls;
+    }
+
+    public boolean isUseActualParamName() {
+        return this.useActualParamName;
+    }
+
+    public void setUseActualParamName(boolean useActualParamName) {
+        this.useActualParamName = useActualParamName;
+    }
 
   public boolean isReturnInstanceForEmptyRow() {
     return returnInstanceForEmptyRow;
@@ -704,6 +657,7 @@ public class Configuration {
       BoundSql boundSql) {
     ParameterHandler parameterHandler = mappedStatement.getLang().createParameterHandler(mappedStatement,
         parameterObject, boundSql);
+      // 植入插件逻辑（返回代理对象）
     return (ParameterHandler) interceptorChain.pluginAll(parameterHandler);
   }
 
@@ -711,6 +665,7 @@ public class Configuration {
       ParameterHandler parameterHandler, ResultHandler resultHandler, BoundSql boundSql) {
     ResultSetHandler resultSetHandler = new DefaultResultSetHandler(executor, mappedStatement, parameterHandler,
         resultHandler, boundSql, rowBounds);
+      // 植入插件逻辑（返回代理对象）
     return (ResultSetHandler) interceptorChain.pluginAll(resultSetHandler);
   }
 
@@ -718,7 +673,8 @@ public class Configuration {
       Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
     StatementHandler statementHandler = new RoutingStatementHandler(executor, mappedStatement, parameterObject,
         rowBounds, resultHandler, boundSql);
-    return (StatementHandler) interceptorChain.pluginAll(statementHandler);
+      // 植入插件逻辑（返回代理对象）
+      return (StatementHandler) interceptorChain.pluginAll(statementHandler);
   }
 
   public Executor newExecutor(Transaction transaction) {
@@ -733,11 +689,14 @@ public class Configuration {
     } else if (ExecutorType.REUSE == executorType) {
       executor = new ReuseExecutor(this, transaction);
     } else {
+        // 默认 SimpleExecutor
       executor = new SimpleExecutor(this, transaction);
     }
+    // 二级缓存开关 ，setting 中caacheEnabled默认是true
     if (cacheEnabled) {
       executor = new CachingExecutor(executor);
     }
+    // 植入插件逻辑
     return (Executor) interceptorChain.pluginAll(executor);
   }
 
