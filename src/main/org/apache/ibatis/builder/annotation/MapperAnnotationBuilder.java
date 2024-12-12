@@ -114,11 +114,15 @@ public class MapperAnnotationBuilder {
   public void parse() {
     String resource = type.toString();
     if (!configuration.isResourceLoaded(resource)) {
+      // 先判断 Mapper.xml 有没有解析，没有先解析 Mapper.xml （例如定义 package 方式）
       loadXmlResource();
       configuration.addLoadedResource(resource);
       assistant.setCurrentNamespace(type.getName());
+      // 处理 @CacheNamespace
       parseCache();
+      // 处理 @CaacheNamespaceRef
       parseCacheRef();
+      // 获取所有方法
       for (Method method : type.getMethods()) {
         if (!canHaveStatement(method)) {
           continue;
@@ -128,6 +132,7 @@ public class MapperAnnotationBuilder {
           parseResultMap(method);
         }
         try {
+          // 解析方法上的注解， 添加到MapperStatement集合中
           parseStatement(method);
         } catch (IncompleteElementException e) {
           configuration.addIncompleteMethod(new MethodResolver(this, method));

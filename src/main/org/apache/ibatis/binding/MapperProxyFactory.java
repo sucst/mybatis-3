@@ -43,8 +43,14 @@ public class MapperProxyFactory<T> {
     return methodCache;
   }
 
+  /**
+   * 创建实现了 mapperInterface 接口的代理对象
+   */
   @SuppressWarnings("unchecked")
   protected T newInstance(MapperProxy<T> mapperProxy) {
+    // 1：类加载器:
+    // 2：被代理类实现的接口、
+    // 3：实现了 InvocationHandler 的触发管理类
     return (T) Proxy.newProxyInstance(mapperInterface.getClassLoader(), new Class[] { mapperInterface }, mapperProxy);
   }
 

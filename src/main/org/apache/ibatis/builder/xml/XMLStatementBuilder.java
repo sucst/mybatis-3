@@ -36,6 +36,7 @@ import org.apache.ibatis.session.Configuration;
 
 /**
  * @author Clinton Begin
+ * @description 解析CRUD标签
  */
 public class XMLStatementBuilder extends BaseBuilder {
 

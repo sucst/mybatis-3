@@ -40,8 +40,12 @@ public class MapperRegistry {
     this.config = config;
   }
 
+  /**
+   * 获取Mapper接口对应的代理对象
+   */
   @SuppressWarnings("unchecked")
   public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
+    // 获取 Mapper 接口对应的 MapperProxyFactory 对象
     final MapperProxyFactory<T> mapperProxyFactory = (MapperProxyFactory<T>) knownMappers.get(type);
     if (mapperProxyFactory == null) {
       throw new BindingException("Type " + type + " is not known to the MapperRegistry.");
@@ -58,17 +62,22 @@ public class MapperRegistry {
   }
 
   public <T> void addMapper(Class<T> type) {
+    // 检测type是否为接口
     if (type.isInterface()) {
+      // 检测是否已经加载过该接口
       if (hasMapper(type)) {
         throw new BindingException("Type " + type + " is already known to the MapperRegistry.");
       }
       boolean loadCompleted = false;
       try {
+        // ！Map<Class<?>, MapperProxyFactory<?>> 存放的是接口类型，和对应的工厂类的关系
         knownMappers.put(type, new MapperProxyFactory<>(type));
         // It's important that the type is added before the parser is run
         // otherwise the binding may automatically be attempted by the
         // mapper parser. If the type is already known, it won't try.
+        // 注册接口了之后，根据接口，开始解析所有方法上的注解，eg:@Select
         MapperAnnotationBuilder parser = new MapperAnnotationBuilder(config, type);
+        //
         parser.parse();
         loadCompleted = true;
       } finally {

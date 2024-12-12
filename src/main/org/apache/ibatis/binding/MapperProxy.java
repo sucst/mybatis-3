@@ -80,9 +80,12 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     try {
+      // toString hashCode equals getClass等方法，无需走到执行SQL的流程
       if (Object.class.equals(method.getDeclaringClass())) {
         return method.invoke(this, args);
       }
+      // 提升获取 mapperMethod 的效率，到 MapperMethodInvoker（内部接口） 的 invoke
+      // 普通方法会走到 PlainMethodInvoker（内部类） 的 invoke
       return cachedInvoker(method).invoke(proxy, method, args, sqlSession);
     } catch (Throwable t) {
       throw ExceptionUtil.unwrapThrowable(t);
@@ -138,6 +141,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args, SqlSession sqlSession) throws Throwable {
+      // SQL执行的真正起点
       return mapperMethod.execute(sqlSession, args);
     }
   }
