@@ -57,16 +57,21 @@ public class DefaultParameterHandler implements ParameterHandler {
   public Object getParameterObject() {
     return parameterObject;
   }
-
+  /**
+   * 为 SQL 语句中的 ？ 占位符 绑定实参
+   */
   @Override
   public void setParameters(PreparedStatement ps) {
     ErrorContext.instance().activity("setting parameters").object(mappedStatement.getParameterMap().getId());
+    // 取出SQL中的参数映射列表
     List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
+    // 获取对应的占位符
     if (parameterMappings != null) {
       MetaObject metaObject = null;
       for (int i = 0; i < parameterMappings.size(); i++) {
         ParameterMapping parameterMapping = parameterMappings.get(i);
         if (parameterMapping.getMode() != ParameterMode.OUT) {
+          // 过滤掉存储过程中的 输出参数
           Object value;
           String propertyName = parameterMapping.getProperty();
           if (boundSql.hasAdditionalParameter(propertyName)) { // issue #448 ask first for additional params
@@ -81,12 +86,14 @@ public class DefaultParameterHandler implements ParameterHandler {
             }
             value = metaObject.getValue(propertyName);
           }
+          // 获取 参数类型 对应的 类型处理器
           TypeHandler typeHandler = parameterMapping.getTypeHandler();
           JdbcType jdbcType = parameterMapping.getJdbcType();
           if (value == null && jdbcType == null) {
             jdbcType = configuration.getJdbcTypeForNull();
           }
           try {
+            // 通过TypeHandler 处理参数
             typeHandler.setParameter(ps, i + 1, value, jdbcType);
           } catch (TypeException | SQLException e) {
             throw new TypeException("Could not set parameters for mapping: " + parameterMapping + ". Cause: " + e, e);

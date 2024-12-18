@@ -98,6 +98,7 @@ public abstract class BaseBuilder {
 
   protected <T> Class<? extends T> resolveClass(String alias) {
     try {
+      // 别名处理
       return alias == null ? null : resolveAlias(alias);
     } catch (Exception e) {
       throw new BuilderException("Error resolving class. Cause: " + e, e);
@@ -129,6 +130,7 @@ public abstract class BaseBuilder {
   }
 
   protected <T> Class<? extends T> resolveAlias(String alias) {
+    // 根据别名查找真实的类型
     return typeAliasRegistry.resolveAlias(alias);
   }
 }

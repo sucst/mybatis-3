@@ -27,11 +27,13 @@ import org.apache.ibatis.reflection.invoker.MethodInvoker;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
+ * 通过 Reflector 和 ReflectorFactory 的组合使用 实现对复杂的属性表达式的解析
  * @author Clinton Begin
  */
 public class MetaClass {
-
+  // 缓存 Reflector
   private final ReflectorFactory reflectorFactory;
+  // 创建 MetaClass时 会指定一个 Class reflector 会记录该类的相关信息
   private final Reflector reflector;
 
   private MetaClass(Class<?> type, ReflectorFactory reflectorFactory) {

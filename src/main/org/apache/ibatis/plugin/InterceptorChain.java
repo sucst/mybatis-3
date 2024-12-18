@@ -23,11 +23,13 @@ import java.util.List;
  * @author Clinton Begin
  */
 public class InterceptorChain {
-
+  // 保存所有的 Interceptor  也就我所有的插件是保存在 Interceptors 这个List集合中的
   private final List<Interceptor> interceptors = new ArrayList<>();
 
   public Object pluginAll(Object target) {
+    // 获取拦截器链中的所有拦截器
     for (Interceptor interceptor : interceptors) {
+      // 创建对应的拦截器的代理对象
       target = interceptor.plugin(target);
     }
     return target;

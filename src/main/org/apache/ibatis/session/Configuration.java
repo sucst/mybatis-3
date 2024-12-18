@@ -204,10 +204,11 @@ public class Configuration {
 
     public void setLogImpl(Class<? extends Log> logImpl) {
         if (logImpl != null) {
+            // 记录日志类型
             this.logImpl = logImpl;
+            // 设置适配选项
             LogFactory.useCustomLogging(this.logImpl);
         }
-
     }
 
     public Class<? extends VFS> getVfsImpl() {

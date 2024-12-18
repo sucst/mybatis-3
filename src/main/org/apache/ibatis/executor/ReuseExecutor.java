@@ -56,9 +56,12 @@ public class ReuseExecutor extends BaseExecutor {
   public <E> List<E> doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler,
       BoundSql boundSql) throws SQLException {
     Configuration configuration = ms.getConfiguration();
+    // 注意，已经来到SQL处理的关键对象 StatementHandler >>
     StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler,
         boundSql);
+    // 获取一个 Statement对象
     Statement stmt = prepareStatement(handler, ms.getStatementLog());
+    // 执行查询
     return handler.query(stmt, resultHandler);
   }
 

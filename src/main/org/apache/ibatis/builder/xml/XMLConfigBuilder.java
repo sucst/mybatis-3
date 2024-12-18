@@ -188,6 +188,7 @@ public class XMLConfigBuilder extends BaseBuilder {
   }
 
   private void loadCustomLogImpl(Properties props) {
+    // 获取 logImpl 设置日志类型
     Class<? extends Log> logImpl = resolveClass(props.getProperty("logImpl"));
     // 写入到configuration中
     configuration.setLogImpl(logImpl);

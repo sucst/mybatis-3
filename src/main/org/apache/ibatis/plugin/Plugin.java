@@ -30,9 +30,11 @@ import org.apache.ibatis.util.MapUtil;
  * @author Clinton Begin
  */
 public class Plugin implements InvocationHandler {
-
+  // 目标对象
   private final Object target;
+  // 拦截器
   private final Interceptor interceptor;
+  // 记录 @Signature 注解的信息
   private final Map<Class<?>, Set<Method>> signatureMap;
 
   private Plugin(Object target, Interceptor interceptor, Map<Class<?>, Set<Method>> signatureMap) {
@@ -41,23 +43,57 @@ public class Plugin implements InvocationHandler {
     this.signatureMap = signatureMap;
   }
 
+  /**
+   * 创建目标代理对象 目标对象 Executor  ParameterHandler  ResultSetHandler StatementHandler
+   * @param target 目标对象
+   * @param interceptor 拦截器
+   * @return
+   */
   public static Object wrap(Object target, Interceptor interceptor) {
+    // 获取用户自定义 Interceptor中@Signature注解的信息
+    // getSignatureMap 负责处理@Signature 注解
     Map<Class<?>, Set<Method>> signatureMap = getSignatureMap(interceptor);
+    // 获取目标类型
     Class<?> type = target.getClass();
+    // 如果目标类型有实现的接口 就创建代理对象
     Class<?>[] interfaces = getAllInterfaces(type, signatureMap);
     if (interfaces.length > 0) {
       return Proxy.newProxyInstance(type.getClassLoader(), interfaces, new Plugin(target, interceptor, signatureMap));
     }
+    // 否则原封不动的返回目标对象
     return target;
   }
 
+  /**
+   * 代理对象方法被调用时执行的代码
+   * @param proxy the proxy instance that the method was invoked on
+   *
+   * @param method the {@code Method} instance corresponding to
+   * the interface method invoked on the proxy instance.  The declaring
+   * class of the {@code Method} object will be the interface that
+   * the method was declared in, which may be a superinterface of the
+   * proxy interface that the proxy class inherits the method through.
+   *
+   * @param args an array of objects containing the values of the
+   * arguments passed in the method invocation on the proxy instance,
+   * or {@code null} if interface method takes no arguments.
+   * Arguments of primitive types are wrapped in instances of the
+   * appropriate primitive wrapper class, such as
+   * {@code java.lang.Integer} or {@code java.lang.Boolean}.
+   *
+   * @return
+   * @throws Throwable
+   */
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     try {
+      // 获取当前方法所在类或接口中，可被当前Interceptor拦截的方法
       Set<Method> methods = signatureMap.get(method.getDeclaringClass());
       if (methods != null && methods.contains(method)) {
+        // 当前调用的方法需要被拦截 执行拦截操作
         return interceptor.intercept(new Invocation(target, method, args));
       }
+      // 不需要拦截 则调用 目标对象中的方法
       return method.invoke(target, args);
     } catch (Exception e) {
       throw ExceptionUtil.unwrapThrowable(e);

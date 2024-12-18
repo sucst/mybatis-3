@@ -675,6 +675,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   private Object createResultObject(ResultSetWrapper rsw, ResultMap resultMap, List<Class<?>> constructorArgTypes,
       List<Object> constructorArgs, String columnPrefix) throws SQLException {
     final Class<?> resultType = resultMap.getType();
+    // 创建 MetaClass 对象
     final MetaClass metaType = MetaClass.forClass(resultType, reflectorFactory);
     final List<ResultMapping> constructorMappings = resultMap.getConstructorResultMappings();
     if (hasTypeHandlerForResultObject(rsw, resultType)) {

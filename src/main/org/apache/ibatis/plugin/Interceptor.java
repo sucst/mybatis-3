@@ -21,13 +21,13 @@ import java.util.Properties;
  * @author Clinton Begin
  */
 public interface Interceptor {
-
+  // 执行逻辑拦截方法
   Object intercept(Invocation invocation) throws Throwable;
-
+  // 决定是否触发 intercept() 方法
   default Object plugin(Object target) {
     return Plugin.wrap(target, this);
   }
-
+  // 根据配置初始化 Intercept对象
   default void setProperties(Properties properties) {
     // NOP
   }

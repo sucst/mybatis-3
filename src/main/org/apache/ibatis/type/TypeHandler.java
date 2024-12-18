@@ -25,11 +25,23 @@ import java.sql.SQLException;
  */
 public interface TypeHandler<T> {
 
+  /**
+   * 负责将Java类型转换为JDBC的类型 本质上执行的就是JDBC操作中的 如下操作
+   *   String sql = "SELECT id,user_name,real_name,password,age,d_id from t_user where id = ? and user_name = ?";
+   *   ps = conn.prepareStatement(sql);
+   *   ps.setInt(1,2);
+   *   ps.setString(2,"张三");
+   * @param ps
+   * @param i i 对应占位符的 位置
+   * @param parameter parameter 占位符对应的值
+   * @param jdbcType jdbcType 对应的 jdbcType 类型
+   * @throws SQLException
+   */
   void setParameter(PreparedStatement ps, int i, T parameter, JdbcType jdbcType) throws SQLException;
 
   /**
    * Gets the result.
-   *
+   * 从ResultSet中获取数据时会调用此方法，会将数据由JdbcType转换为Java类型
    * @param rs
    *          the rs
    * @param columnName

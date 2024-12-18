@@ -62,7 +62,9 @@ public class PreparedStatementHandler extends BaseStatementHandler {
   @Override
   public <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException {
     PreparedStatement ps = (PreparedStatement) statement;
+    // 到了 JDBC 的流程， 本质上 ps 也是 日志代理对象
     ps.execute();
+    // 处理结果集
     return resultSetHandler.handleResultSets(ps);
   }
 
@@ -81,6 +83,7 @@ public class PreparedStatementHandler extends BaseStatementHandler {
       if (keyColumnNames == null) {
         return connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
       } else {
+        // 在执行 prepareStatement 方法的时候会进入进入到ConnectionLogger的invoker方法中
         return connection.prepareStatement(sql, keyColumnNames);
       }
     }

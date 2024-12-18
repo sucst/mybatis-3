@@ -133,6 +133,11 @@ public class TypeAliasRegistry {
     registerAliases(packageName, Object.class);
   }
 
+  /**
+   * 根据 packagename 来指定
+   * @param packageName
+   * @param superType
+   */
   public void registerAliases(String packageName, Class<?> superType) {
     ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<>();
     resolverUtil.find(new ResolverUtil.IsA(superType), packageName);
@@ -145,11 +150,16 @@ public class TypeAliasRegistry {
       }
     }
   }
-
+  /**
+   * 扫描 @Alias注解
+   * @param type
+   */
   public void registerAlias(Class<?> type) {
     String alias = type.getSimpleName();
+    // 扫描 @Alias注解
     Alias aliasAnnotation = type.getAnnotation(Alias.class);
     if (aliasAnnotation != null) {
+      // 获取注解中定义的别名名称
       alias = aliasAnnotation.value();
     }
     registerAlias(alias, type);
@@ -161,10 +171,12 @@ public class TypeAliasRegistry {
     }
     // issue #748
     String key = alias.toLowerCase(Locale.ENGLISH);
+    // 检测别名是否存在
     if (typeAliases.containsKey(key) && typeAliases.get(key) != null && !typeAliases.get(key).equals(value)) {
       throw new TypeException(
           "The alias '" + alias + "' is already mapped to the value '" + typeAliases.get(key).getName() + "'.");
     }
+    // 别名和类型添加到Map集合中
     typeAliases.put(key, value);
   }
 
