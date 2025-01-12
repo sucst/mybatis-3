@@ -95,7 +95,7 @@ public abstract class BaseBuilder {
       throw new BuilderException("Error creating instance. Cause: " + e, e);
     }
   }
-
+  // 解析标签字段 ⭐⭐⭐
   protected <T> Class<? extends T> resolveClass(String alias) {
     try {
       // 别名处理

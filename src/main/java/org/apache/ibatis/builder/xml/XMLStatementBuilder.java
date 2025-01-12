@@ -55,7 +55,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     this.context = context;
     this.requiredDatabaseId = databaseId;
   }
-
+  // 创建了用来解析增删改查标签的XMLStatementBuilder，并且把创建的MappedStatement添加到mappedStatements中
   public void parseStatementNode() {
     String id = context.getStringAttribute("id");
     String databaseId = context.getStringAttribute("databaseId");

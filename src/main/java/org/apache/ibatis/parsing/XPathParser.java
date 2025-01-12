@@ -209,7 +209,7 @@ public class XPathParser {
   public XNode evalNode(String expression) {
     return evalNode(document, expression);
   }
-
+  // 封装为XNode对象
   public XNode evalNode(Object root, String expression) {
     Node node = (Node) evaluate(expression, root, XPathConstants.NODE);
     if (node == null) {

@@ -99,7 +99,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     super(newConfig(configClass));
     ErrorContext.instance().resource("SQL Mapper Configuration");
     // 设置Properties 属性
-    this.configuration.setVariables(props);
+      this.configuration.setVariables(props);
     // 设置是否解析的标志
     this.parsed = false;
     // 初始化为 environment
@@ -140,7 +140,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
       // 反射工具箱
       reflectorFactoryElement(root.evalNode("reflectorFactory"));
-      // settings 子标签复制， 默认值就是在这里提供
+      // settings 子标签复制， 默认值就是在这里提供--前面几步已经把子标签转为了 Properties 对象
       settingsElement(settings);
       // read it after objectFactory and objectWrapperFactory issue #631
       // 创建数据源
@@ -253,7 +253,8 @@ public class XMLConfigBuilder extends BaseBuilder {
       configuration.setObjectFactory(factory);
     }
   }
-
+  // ObjectWrapperFactory用来对对象做特殊的处理。
+  // 比如：select没有写别名，查询返回的是一个Map，可以在自定义的objectWrapperFactory中把下划线命名变成驼峰命名。
   private void objectWrapperFactoryElement(XNode context) throws Exception {
     if (context != null) {
       String type = context.getStringAttribute("type");
@@ -261,7 +262,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       configuration.setObjectWrapperFactory(factory);
     }
   }
-
+  // ReflectorFactory是反射的工具箱，对反射的操作进行了封装
   private void reflectorFactoryElement(XNode context) throws Exception {
     if (context != null) {
       String type = context.getStringAttribute("type");
@@ -298,7 +299,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     parser.setVariables(defaults);
     configuration.setVariables(defaults);
   }
-
+ // setting二级标签赋值
   private void settingsElement(Properties props) {
     configuration
         .setAutoMappingBehavior(AutoMappingBehavior.valueOf(props.getProperty("autoMappingBehavior", "PARTIAL")));
@@ -361,7 +362,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       }
     }
   }
-
+  // 解析 databaseIdProvider 标签，生成 DatabaseIdProvider 对象（用来支持不同厂商的数据库）
   private void databaseIdProviderElement(XNode context) throws Exception {
     if (context == null) {
       return;
@@ -404,15 +405,24 @@ public class XMLConfigBuilder extends BaseBuilder {
     throw new BuilderException("Environment declaration requires a DataSourceFactory.");
   }
 
+  /**
+   * 跟TypeAlias一样，TypeHandler有两种配置方式，
+   * 一种是单独配置一个类，
+   * 一种是指定一个package。
+   * 最后我们得到的是JavaType和JdbcType，以及用来做相互映射的TypeHandler之间的映射关系，存放在TypeHandlerRegistry对象里面。
+   * @param context
+   */
   private void typeHandlersElement(XNode context) {
     if (context == null) {
       return;
     }
     for (XNode child : context.getChildren()) {
+      // 是指定包形式
       if ("package".equals(child.getName())) {
         String typeHandlerPackage = child.getStringAttribute("name");
         typeHandlerRegistry.register(typeHandlerPackage);
       } else {
+        // 是单独配置一个类
         String javaTypeName = child.getStringAttribute("javaType");
         String jdbcTypeName = child.getStringAttribute("jdbcType");
         String handlerTypeName = child.getStringAttribute("handler");
@@ -485,6 +495,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     return environment.equals(id);
   }
 
+  // 初始化 Configuration 实例
   private static Configuration newConfig(Class<? extends Configuration> configClass) {
     try {
       return configClass.getDeclaredConstructor().newInstance();

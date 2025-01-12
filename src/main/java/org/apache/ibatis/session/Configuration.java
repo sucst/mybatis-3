@@ -155,7 +155,7 @@ public class Configuration {
         this();
         this.environment = environment;
     }
-
+  // TypeAliasRegistry 别名注册构造
   public Configuration() {
     typeAliasRegistry.registerAlias("JDBC", JdbcTransactionFactory.class);
     typeAliasRegistry.registerAlias("MANAGED", ManagedTransactionFactory.class);
