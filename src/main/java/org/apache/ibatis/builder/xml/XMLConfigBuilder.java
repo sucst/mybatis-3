@@ -143,7 +143,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       // settings 子标签复制， 默认值就是在这里提供--前面几步已经把子标签转为了 Properties 对象
       settingsElement(settings);
       // read it after objectFactory and objectWrapperFactory issue #631
-      // 创建数据源
+      // 创建数据源，获取事务工厂
       environmentsElement(root.evalNode("environments"));
       databaseIdProviderElement(root.evalNode("databaseIdProvider"));
       typeHandlersElement(root.evalNode("typeHandlers"));
@@ -337,6 +337,11 @@ public class XMLConfigBuilder extends BaseBuilder {
     configuration.setNullableOnForEach(booleanValueOf(props.getProperty("nullableOnForEach"), false));
   }
 
+  /**
+   * TransactionFactory 在解析environment标签 时创建
+   * @param context XNode
+   * @throws Exception
+   */
   private void environmentsElement(XNode context) throws Exception {
     if (context == null) {
       return;
@@ -349,7 +354,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       if (isSpecifiedEnvironment(id)) {
         // 事务工厂
         TransactionFactory txFactory = transactionManagerElement(child.evalNode("transactionManager"));
-        // 数据源工厂（例如 DruidDataSourceFactory ）
+        // 事务工厂厂（例如 DruidDataSourceFactory ）
         DataSourceFactory dsFactory = dataSourceElement(child.evalNode("dataSource"));
         // 数据源
         DataSource dataSource = dsFactory.getDataSource();
@@ -451,6 +456,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       // package 包
       if ("package".equals(child.getName())) {
         String mapperPackage = child.getStringAttribute("name");
+        // 实际上是为接口创建一个对应的MapperProxyFactory（用于为这个type提供工厂类，创建MapperProxy）
         configuration.addMappers(mapperPackage);
       } else {
         String resource = child.getStringAttribute("resource");

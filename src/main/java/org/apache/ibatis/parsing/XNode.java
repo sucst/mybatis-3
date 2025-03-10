@@ -251,21 +251,39 @@ public class XNode {
     String value = attributes.getProperty(name);
     return value == null ? def : Float.valueOf(value);
   }
-
+  /**
+   * 获取当前 XML 节点的所有子元素节点，并封装为 XNode 对象列表。
+   * 仅处理元素类型节点（Node.ELEMENT_NODE），忽略其他类型节点（如文本节点、注释节点）。
+   *
+   * @return List<XNode> 子元素节点列表，若无有效子节点则返回空列表（非 null）
+   */
   public List<XNode> getChildren() {
     List<XNode> children = new ArrayList<>();
     NodeList nodeList = node.getChildNodes();
     if (nodeList != null) {
       for (int i = 0, n = nodeList.getLength(); i < n; i++) {
+        // 仅处理 XML 元素节点（过滤属性/文本节点等）
         Node node = nodeList.item(i);
         if (node.getNodeType() == Node.ELEMENT_NODE) {
+          // 将子节点封装为 XNode 对象，保留上下文解析器和变量信息
           children.add(new XNode(xpathParser, node, variables));
         }
       }
     }
     return children;
   }
-
+  /**
+   * 将当前节点的子元素节点转换为 Properties 键值对集合。
+   * 要求子节点必须包含 "name" 和 "value" 属性，否则将被忽略。
+   * 典型应用场景：解析 <properties> 标签内的配置项。
+   *
+   * @return Properties 对象，包含所有有效子节点的 name-value 对
+   * @示例 XML：
+   *   <properties>
+   *     <property name="username" value="root"/>
+   *     <property name="password" value="123456"/>
+   *   </properties>
+   */
   public Properties getChildrenAsProperties() {
     Properties properties = new Properties();
     for (XNode child : getChildren()) {

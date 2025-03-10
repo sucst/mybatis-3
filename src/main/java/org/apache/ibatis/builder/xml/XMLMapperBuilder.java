@@ -81,7 +81,7 @@ public class XMLMapperBuilder extends BaseBuilder {
   public void parse() {
     // 语句的注册和接口注册
     if (!configuration.isResourceLoaded(resource)) {
-      // 1. 具体CRUD标签的解析
+      // 1. 具体CRUD标签的解析 解析所有的子标签，最终获得MappedStatement对象；
       configurationElement(parser.evalNode("/mapper"));
       configuration.addLoadedResource(resource);
       // 2. 把 namespacee（接口类型）和工厂类型绑定起来，放到一个map
