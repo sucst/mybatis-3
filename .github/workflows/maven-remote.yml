@@ -34,7 +34,7 @@ jobs:
 
       - name: Copy openai-code-review-sdk JAR
 #          mvn dependency:copy group.id:artifact.id:${version.property} <groupId>cn.atsuc</groupId> <artifactId>atsuc-ai</artifactId>
-        run: mvn dependency:copy -Dartifact=cn.atsuc:ai-code-review-sdk:1.0 -DoutputDirectory=./libs
+        run: mvn dependency:copy -Dartifact=cn.atsuc:ai-code-review-sdk:0.1 -DoutputDirectory=./libs
 
       - name: Get repository name
         id: repo-name
